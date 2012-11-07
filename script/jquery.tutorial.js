@@ -31,9 +31,11 @@
       }
     });
   
-    var elementIndex = 0; 
+    // Set to -1, to have a 0 at the first call.
+    var elementIndex = -1; 
     var elements = [];
     var tooltip;
+    var tooltipTmpl;
     var overlay;
     
     // private function for debugging
@@ -42,29 +44,36 @@
         window.console.log($obj);
       }
     };
+    var _bindButtonEvents = function() {
+      tooltip.find('#tooltip-next').bind('click', _next);
+      tooltip.find('#tooltip-back').bind('click', _back);
+      tooltip.find('#tutorial-exit').bind('click', _exit);
+    };
     var _createTooltip = function() {
-       tooltip = $('<div id="tutorial-tooltip-wrapper"/>')
-       .attr('class', opts.tooltipClass)
-       .append($('<div id="tutorial-tooltip-text"/>'))
-       .append(
-         $('<div id="tutorial-tooltip-button">')
-         .append(opts.tooltipButton)
-       )
-       .appendTo('body');
-       $('#tutorial-tooltip-button button').first().bind('click', _next);
-       
-       if(opts.darkenOverlay) {
-         overlay = $('<div id="darken-overlay">')
-         .css({
-           width: $(document).width(),
-           height: $(document).height(),
-           zIndex: 9000
-         })
-         .appendTo('body');
-       }
+      // Save compiled template for later use.
+      tooltipTmpl = $('#' + opts.tooltipTemplate).tmpl({Text: ''});
+      tooltip = $('<div id="user-tutorial-tooltip" />');
+      tooltip.append(tooltipTmpl).appendTo('body');
+      
+      if(opts.darkenOverlay) {
+        overlay = $('<div id="darken-overlay">')
+        .css({
+          width: $(document).width(),
+          height: $(document).height(),
+          zIndex: 9000
+        })
+        .appendTo('body');
+        if(opts.exitByClickOnOverlay) {
+          overlay.bind('click', _exit);
+        }
+      }
     };
     var _fillText = function(text) {
-      $('#tutorial-tooltip-wrapper').find('#tutorial-tooltip-text').text(text);
+      tooltip.empty();
+      tooltipTmpl = $('#' + opts.tooltipTemplate).tmpl({Text: text});
+      tooltip.append(tooltipTmpl);
+      
+      _bindButtonEvents();
     };
     var _getSelector = function(element) {
       // Build selector.
@@ -90,7 +99,6 @@
         right: parseInt($(jqObj).css('padding-right').replace('px', '').replace('auto', 0)),
         bottom: parseInt($(jqObj).css('padding-bottom').replace('px', '').replace('auto', 0))
       }
-      
       return posData;
     };
     var _setPosition = function(element) {
@@ -122,8 +130,6 @@
       $(tooltip).fadeTo(opts.fadeSpeed, opts.tooltipTransperancy, function() {
         // Call show event.
         opts.show(element);
-        
-        elementIndex++;
       });
     };
     var _finish = function() {
@@ -136,12 +142,36 @@
       // Call finish event.
       opts.finish();
     };
+    var _handleButtonHiding = function() {
+      // Check if we have to hide either the back or next button.
+      if(elementIndex == 0) {
+        tooltip.find('#tooltip-back').hide();
+      } else {
+        tooltip.find('#tooltip-back').show();
+      }
+      if(elementIndex == elements.length - 1) {
+        tooltip.find('#tooltip-next').hide();
+      } else {
+        tooltip.find('#tooltip-next').show();
+      }
+    };
+    var _exit = function() {
+      _processStep(0);
+    };
     var _next = function() {
-      // If the last tooltip is reached, only hide the tooltip.
-      if(elementIndex == elements.length) {
+      _processStep(1);
+    };
+    var _back = function() {
+      _processStep(-1);
+    };
+    var _processStep = function(direction) {
+      // If exit wanted, do it.
+      if(direction == 0) {
         _finish();
         return;
       }
+            
+      elementIndex += direction;
       
       // Make it easy ;).
       var element = elements[elementIndex];
@@ -150,21 +180,26 @@
       $(tooltip).fadeOut(opts.fadeSpeed, function() {
         _fillText(element.text);
         _setPosition(element);
+        
         // Call hide-event.
         // Get next element in case that it exists.
         var nextElement = null;
-        if(elementIndex < elements.length - 1) {
-          nextElement = $(_getSelector(elements[elementIndex + 1]));
+        if(elementIndex < elements.length - 1 && (elementIndex + direction) >= 0) {
+          nextElement = $(_getSelector(elements[elementIndex + (1 * direction)] ));
         }
         opts.hide(
           $(_getSelector(element)), 
           nextElement
         );
+        
         // Decide if we first fade in the overlay and then show element + tooltip or...
         if(opts.darkenOverlay && overlay !== undefined) {
           $(overlay).find('#overlay-element-clone').fadeOut(opts.fadeSpeed, function() {
             $(overlay).find('#overlay-element-clone').remove();
           });
+          
+          _handleButtonHiding();
+          
           $(overlay).fadeTo(opts.fadeSpeed, opts.darkenTransperancy, function() {
             // Since we cannot bring the current element in the foreground
             // while it has a custom positioning, we clone the element
@@ -203,18 +238,30 @@
   
   // default options
   $.fn.userTutorial.defaults = {
+    // The attribute that identifies an unique element.  
     elementIdentification: 'rel',
+    // URL for ajax request.
     requestUrl: 'ajax/tutorial.php',
+    // Additional url-parameters
     additionalRequestData: {},
-    tooltipClass: 'tutorialTooltip',
-    tooltipButton: $('<button id="tutorial-tooltip-button"><span class="button-text">Continue</span></button>'),
+    // The fade speed for all fading elements.
     fadeSpeed:'normal',
+    // The transperancy of the tooltip
     tooltipTransperancy: 0.8,
+    // The tooltip-positioning
     position: 'below',
+    // The align of the tooltip.
     align: 'center',
+    // The gap between the tooltip and its element.
     gapSize: 10,
+    // Shows the overlay and highlight current element. 
     darkenOverlay: true,
+    // The transperancy of the overlay
     darkenTransperancy: 0.6,
+    // Exit by click on overlay?
+    exitByClickOnOverlay: false,
+    // Tooltip template for jquery.tmpl
+    tooltipTemplate: 'tooltipTemplate',
     
     // Events
     show: function(currentElement){},

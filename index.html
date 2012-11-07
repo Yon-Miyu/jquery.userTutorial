@@ -5,6 +5,7 @@
 		<link rel="stylesheet" href="style/tutorial.css">
 		<link rel="stylesheet" href="style/jquery-ui.custom.min.css">
 		<script src="script/jquery.min.js"></script>
+		<script src="script/jquery.tmpl.min.js"></script>
 		<script src="script/jquery-ui.custom.min.js"></script>
 		<script src="script/jquery.tutorial.js"></script>
 		<script>
@@ -45,5 +46,15 @@
 				</table>
 			</form>
 		</div>
+		
+		<script id="tooltipTemplate" type="text/x-jquery-tmpl">
+			<div id="tutorial-exit"></div>
+  		<div id="tutorial-tooltip-text">${Text}</div>
+  		<div id="tutorial-tooltip-button">
+  			<button id="tooltip-back">Back</button>
+    		<button id="tooltip-next">Next</button>
+  		</div>
+		</script>
+		
 	</body>
 </html>
