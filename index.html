@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<link rel="stylesheet" href="style/tutorial.css">
+		<link rel="stylesheet" href="style/jquery-ui.custom.min.css">
+		<script src="script/jquery.min.js"></script>
+		<script src="script/jquery-ui.custom.min.js"></script>
+		<script src="script/jquery.tutorial.js"></script>
+		<script>
+			$(document).ready(function() {
+				$('.tutItem').userTutorial({
+					elementIdentification: 'id'
+				});
+			});
+		</script>
+	</head>
+	<body style="background-color:#DDDDDD">
+		<h1>jQuery User Tutorial</h1>
+		<div style="padding:10px;border:1px solid black;float:left;background:#DDDDDD;" id="tutorialItem1" class="tutItem">
+			<ul>
+				<li>List Item 1</li>
+				<li>List Item 2</li>
+				<li>List Item 3</li>
+			</ul>
+		</div>
+		<div style="margin-left:20px;border:1px solid gray;padding:30px;background:#DDDDDD;float:left;width:200px;" id="tutorialItem2" class="tutItem">
+			Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		</div>
+		<div style="margin-left:30px;float:left;">
+			<form>
+				<table>
+					<tr>
+						<td>E-Mail:</td>
+						<td><input type="text" id="email" class="tutItem"></td>
+					</tr>
+					<tr>
+						<td>Username:</td>
+						<td><input type="text" id="username" class="tutItem"></td>
+					</tr>
+					<tr>
+						<td>Password:</td>
+						<td><input type="text" id="password" class="tutItem"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+</html>

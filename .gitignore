@@ -1,0 +1,7 @@
+*.class
+*.pyc
+*.pyo
+.project
+.svn
+_svn
+
